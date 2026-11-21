@@ -1,6 +1,6 @@
 {
   "name": "poof",
-  "description": "Do a task, then delete the agent session once it's delivered. /poof <task> in Claude Code, $poof <task> in Codex.",
+  "description": "Delete the agent session, right away or once a task is delivered. /poof [task] in Claude Code, $poof [task] in Codex.",
   "author": {
     "name": "kualta",
     "url": "https://github.com/kualta"

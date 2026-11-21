@@ -13,6 +13,9 @@ answer a question, run a chore.
 $poof bump the lodash version and open a PR          # Codex
 ```
 
+Run it with no task (`/poof` or `$poof`) to delete the session you're in as
+soon as the agent finishes replying.
+
 ## Install
 
 **Any agent, through [skills.sh](https://skills.sh):**
