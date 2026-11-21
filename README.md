@@ -89,6 +89,9 @@ skill reads the task from your message after `$poof`.
 
 ## Limits
 
+- Tested end to end in a Claude Code background session and in `codex exec`.
+  Interactive Claude Code, the Codex TUI, and Codex app-server threads follow
+  the same paths but haven't had a full run yet.
 - Your prompt stays in the agent's input history
   (`~/.claude/history.jsonl`, `~/.codex/history.jsonl`).
 - Cloud sessions (claude.ai/code, Codex Cloud) aren't supported.
