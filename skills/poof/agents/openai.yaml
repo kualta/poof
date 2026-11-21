@@ -1,0 +1,5 @@
+interface:
+  display_name: "poof"
+  short_description: "Do a task, then delete this session"
+policy:
+  allow_implicit_invocation: false

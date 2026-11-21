@@ -1,0 +1,21 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shellcheck
+        run: shellcheck -S warning skills/*/scripts/poof.sh tools/*.sh
+      - name: Alias matches poof
+        run: |
+          tools/sync-alias.sh
+          git diff --exit-code -- skills/
+          cmp skills/poof/scripts/poof.sh skills/self-destruct-after/scripts/poof.sh
+      - name: Manifests are valid JSON
+        run: jq empty .claude-plugin/plugin.json .claude-plugin/marketplace.json

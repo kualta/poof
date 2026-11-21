@@ -1,0 +1,12 @@
+{
+  "name": "poof",
+  "owner": { "name": "kualta", "url": "https://github.com/kualta" },
+  "description": "Skills that delete the agent session once its task is done.",
+  "plugins": [
+    {
+      "name": "poof",
+      "source": "./",
+      "description": "Do a task, then delete the agent session once it's delivered. Works in Claude Code and Codex."
+    }
+  ]
+}
