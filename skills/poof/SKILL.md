@@ -1,7 +1,7 @@
 ---
 name: poof
-description: Do a task, then delete this agent session (its chat transcript and job entry) once the task is delivered. Works in Claude Code and Codex. Use only when the person invokes it explicitly, as /poof <task> in Claude Code or $poof <task> in Codex.
-argument-hint: <task>
+description: Delete this agent session (its chat transcript and job entry), right away or once a given task is delivered. Works in Claude Code and Codex. Use only when the person invokes it explicitly, as /poof [task] in Claude Code or $poof [task] in Codex.
+argument-hint: [task]
 disable-model-invocation: true
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/poof.sh *)
 ---
@@ -15,8 +15,15 @@ delivered, this session deletes itself.
 Task: $ARGUMENTS
 
 If the line above literally reads `$ARGUMENTS` or is empty, the task is
-whatever the person wrote along with invoking this skill. If there's no task
-at all, ask for one and don't arm anything.
+whatever the person wrote along with invoking this skill.
+
+**No task means delete now.** If the person invoked the skill with nothing
+else, they want this session gone as it stands. Don't ask for a task, and
+don't start new work. Skip "Before you finish" and arm it straight away with a
+headline that sums up what the session did. Use "ended with no task" if it did
+nothing. If you know of work from this session that exists only here
+(uncommitted changes, an answer that wasn't saved), name it in your final
+message before you stop.
 
 Once the session is deleted, its chat is gone. Anything that exists only in
 the chat is lost with it.
@@ -31,8 +38,9 @@ the chat is lost with it.
 
 ## Arm it as your last tool call
 
-Arm it only when the task is delivered. If you're blocked, need input, or
-failed, don't arm it: report as usual, and the session stays.
+Arm it only when the task is delivered, or at once when there's no task. If
+you're blocked, need input, or failed, don't arm it: report as usual, and the
+session stays.
 
 The script is `scripts/poof.sh` in this skill's folder. Pass it a one-line
 result headline:
