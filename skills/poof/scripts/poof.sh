@@ -35,32 +35,44 @@ die() {
   exit 1
 }
 
-# Prints the pid of the nearest ancestor that is a codex process, or nothing.
-codex_owner() {
+# The agent that ran this script is the nearest one up the process tree. Both
+# agents' variables can be in the environment when one was started from the
+# other (codex run from a Claude Code session), so the environment alone can't
+# say which session to delete.
+# Prints "claude <pid>", "codex <pid>", or "none"; fails if ps is blocked.
+nearest_agent() {
   local p=$PPID comm
   while [ "${p:-0}" -gt 1 ]; do
+    if [ "$p" = "${CLAUDE_PID:-}" ]; then
+      echo "claude $p"
+      return 0
+    fi
     comm="$(ps -o comm= -p "$p" 2>/dev/null)" || return 1
     case "$(basename "$comm")" in
       codex | codex-*)
-        echo "$p"
+        echo "codex $p"
         return 0
         ;;
     esac
     p="$(ps -o ppid= -p "$p" 2>/dev/null | tr -d ' ')"
   done
-  return 0
+  echo none
 }
 
 if [ "${1:-}" != "--worker" ]; then
-  if [[ "${CLAUDE_CODE_SESSION_ID:-}" =~ $UUID_RE ]]; then
-    AGENT=claude
-    SID="$CLAUDE_CODE_SESSION_ID"
-  elif [[ "${CODEX_THREAD_ID:-${CODEX_SESSION_ID:-}}" =~ $UUID_RE ]]; then
-    AGENT=codex
-    SID="${CODEX_THREAD_ID:-$CODEX_SESSION_ID}"
-  else
-    die "not inside a Claude Code or Codex session (no session id in the environment)"
+  CODEX_SID="${CODEX_THREAD_ID:-${CODEX_SESSION_ID:-}}"
+  if ! found="$(nearest_agent)"; then
+    [[ "$CODEX_SID" =~ $UUID_RE ]] &&
+      die "can't inspect processes. Inside the Codex sandbox, rerun this exact command with escalated permissions (outside the sandbox)."
+    die "can't inspect processes (ps failed)"
   fi
+  read -r AGENT OWNER <<<"$found"
+  case "$AGENT" in
+    claude) SID="${CLAUDE_CODE_SESSION_ID:-}" ;;
+    codex) SID="$CODEX_SID" ;;
+    *) die "not running inside a Claude Code or Codex session" ;;
+  esac
+  [[ "$SID" =~ $UUID_RE ]] || die "found a $AGENT process but no $AGENT session id in the environment"
   SHORT="${SID:0:8}"
 
   if ! mkdir -p "$STATE_DIR" 2>/dev/null || ! touch "$LOG" 2>/dev/null; then
@@ -99,18 +111,12 @@ if [ "${1:-}" != "--worker" ]; then
   command -v jq >/dev/null || die "jq is required (brew install jq, or apt install jq)"
 
   if [ "$AGENT" = claude ]; then
-    OWNER="${CLAUDE_PID:-}"
-    [[ "$OWNER" =~ ^[0-9]+$ ]] && kill -0 "$OWNER" 2>/dev/null ||
-      die "CLAUDE_PID is missing or not running"
     CLI="$(command -v claude)" || die "the claude CLI is not on PATH"
     MODE=interactive
     if [ -n "${CLAUDE_JOB_DIR:-}" ] && [ "$(basename "$CLAUDE_JOB_DIR")" = "$SHORT" ]; then
       MODE=background
     fi
   else
-    OWNER="$(codex_owner)" ||
-      die "can't inspect processes. Inside the Codex sandbox, rerun this exact command with escalated permissions (outside the sandbox)."
-    [ -n "$OWNER" ] || die "couldn't find the codex process that owns this session"
     CLI="$(command -v codex)" || die "the codex CLI is not on PATH"
     case "$(ps -o command= -p "$OWNER")" in
       *" app-server"*) MODE="app-server" ;;
