@@ -1,9 +1,17 @@
 {
   "name": "poof",
-  "description": "Do a task, then delete the agent session once it's delivered. /poof <task> (alias /self-destruct-after) in Claude Code, $poof <task> in Codex.",
-  "author": { "name": "kualta", "url": "https://github.com/kualta" },
+  "description": "Do a task, then delete the agent session once it's delivered. /poof <task> in Claude Code, $poof <task> in Codex.",
+  "author": {
+    "name": "kualta",
+    "url": "https://github.com/kualta"
+  },
   "homepage": "https://github.com/kualta/poof",
   "repository": "https://github.com/kualta/poof",
   "license": "MIT",
-  "keywords": ["session", "cleanup", "ephemeral", "self-destruct", "codex"]
+  "keywords": [
+    "session",
+    "cleanup",
+    "ephemeral",
+    "codex"
+  ]
 }

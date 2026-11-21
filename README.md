@@ -13,15 +13,13 @@ answer a question, run a chore.
 $poof bump the lodash version and open a PR          # Codex
 ```
 
-`/self-destruct-after <task>` is an alias that does the same thing.
-
 ## Install
 
 **Any agent, through [skills.sh](https://skills.sh):**
 
 ```bash
-npx skills add kualta/poof -g --all                  # both skills, every detected agent
-npx skills add kualta/poof -g -s poof -a claude-code codex
+npx skills add kualta/poof -g                        # every detected agent
+npx skills add kualta/poof -g -a claude-code codex   # just these two
 ```
 
 **Claude Code plugin:**
@@ -31,9 +29,8 @@ claude plugin marketplace add kualta/poof
 claude plugin install poof@poof
 ```
 
-Plugin skills are namespaced, so you get `/poof:poof` and
-`/poof:self-destruct-after`. If nothing else is called `/poof`, plain `/poof`
-works too.
+Plugin skills are namespaced, so you get `/poof:poof`. If nothing else is
+called `/poof`, plain `/poof` works too.
 
 **Codex plugin:**
 
